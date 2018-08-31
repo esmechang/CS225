@@ -65,8 +65,8 @@ PNG createSpotlight(PNG image, int centerX, int centerY) {
 
       int new_x = centerX-x;
       int new_y = centerY-y;
-      if (sqrt(new_x*new_x + new_y*new_y) <= 160) {
-        pixel.l = pixel.l*(1-0.005*sqrt(new_x*new_x-new_y*new_y));
+      if (sqrt(new_x*new_x + new_y*new_y) < 160) {
+        pixel.l = pixel.l*(1-0.005*sqrt(new_x*new_x+new_y*new_y));
       } else {
         pixel.l = pixel.l*(0.2);
       }
@@ -94,7 +94,7 @@ PNG illinify(PNG image) {
     for (unsigned y = 0; y < image.height(); y++) {
       HSLAPixel & pixel = image.getPixel(x, y);
 
-      if (abs(pixel.h-11) >= abs(pixel.h-216)) {
+      if (pixel.h > 113.5 && pixel.h < 293.5) {
         pixel.h = 216;
       } else {
         pixel.h = 11;
@@ -125,8 +125,11 @@ PNG watermark(PNG firstImage, PNG secondImage) {
     for (unsigned y = 0; y < secondImage.height(); y++) {
       HSLAPixel & firstpixel = firstImage.getPixel(x, y);
       HSLAPixel & secondpixel = secondImage.getPixel(x, y);
-      if (secondpixel.l == 1) {
-        firstpixel.l += 0.2;
+      if (secondpixel.l == 1 && firstpixel.l <= 0.8) {
+        firstpixel.l = firstpixel.l + 0.2;
+      }
+      if (secondpixel.l == 1 && firstpixel.l > 0.8) {
+        firstpixel.l = 1.0;
       }
     }
   }
