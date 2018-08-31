@@ -22,7 +22,8 @@ PNG grayscale(PNG image) {
     for (unsigned y = 0; y < image.height(); y++) {
       HSLAPixel & pixel = image.getPixel(x, y);
 
-      // `pixel` is a pointer to the memory stored inside of the PNG `image`,
+      // `pixel` is a pointer to the memory store
+      // d inside of the PNG `image`,
       // which means you're changing the image directly.  No need to `set`
       // the pixel since you're directly changing the memory of the image.
       pixel.s = 0;
@@ -45,7 +46,7 @@ PNG grayscale(PNG image) {
  * is a total of `sqrt((3 * 3) + (4 * 4)) = sqrt(25) = 5` pixels away and
  * its luminance is decreased by 2.5% (0.975x its original value).  At a
  * distance over 160 pixels away, the luminance will always decreased by 80%.
- * 
+ *
  * The modified PNG is then returned.
  *
  * @param image A PNG object which holds the image data to be modified.
@@ -56,10 +57,25 @@ PNG grayscale(PNG image) {
  */
 PNG createSpotlight(PNG image, int centerX, int centerY) {
 
+  /// This function is already written for you so you can see how to
+  /// interact with our PNG class.
+  for (unsigned x = 0; x < image.width(); x++) {
+    for (unsigned y = 0; y < image.height(); y++) {
+      HSLAPixel & pixel = image.getPixel(x, y);
+
+      int new_x = centerX-x;
+      int new_y = centerY-y;
+      if (sqrt(new_x*new_x + new_y*new_y) <= 160) {
+        pixel.l = pixel.l*(1-0.005*sqrt(new_x*new_x-new_y*new_y));
+      } else {
+        pixel.l = pixel.l*(0.2);
+      }
+    }
+  }
+
   return image;
-  
 }
- 
+
 
 /**
  * Returns a image transformed to Illini colors.
@@ -72,10 +88,23 @@ PNG createSpotlight(PNG image, int centerX, int centerY) {
  * @return The illinify'd image.
 **/
 PNG illinify(PNG image) {
+  /// This function is already written for you so you can see how to
+  /// interact with our PNG class.
+  for (unsigned x = 0; x < image.width(); x++) {
+    for (unsigned y = 0; y < image.height(); y++) {
+      HSLAPixel & pixel = image.getPixel(x, y);
+
+      if (abs(pixel.h-11) >= abs(pixel.h-216)) {
+        pixel.h = 216;
+      } else {
+        pixel.h = 11;
+      }
+    }
+  }
 
   return image;
 }
- 
+
 
 /**
 * Returns an immge that has been watermarked by another image.
@@ -90,6 +119,17 @@ PNG illinify(PNG image) {
 * @return The watermarked image.
 */
 PNG watermark(PNG firstImage, PNG secondImage) {
+  /// This function is already written for you so you can see how to
+  /// interact with our PNG class.
+  for (unsigned x = 0; x < secondImage.width(); x++) {
+    for (unsigned y = 0; y < secondImage.height(); y++) {
+      HSLAPixel & firstpixel = firstImage.getPixel(x, y);
+      HSLAPixel & secondpixel = secondImage.getPixel(x, y);
+      if (secondpixel.l == 1) {
+        firstpixel.l += 0.2;
+      }
+    }
+  }
 
   return firstImage;
 }
