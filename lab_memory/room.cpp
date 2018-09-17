@@ -22,8 +22,8 @@ Room::Room(const string& init_name, int init_capacity)
 
 Room::Room(const Room& other)
 {
-    copy(other);
     clear();
+    copy(other);
 }
 
 Room& Room::operator=(const Room& other)
