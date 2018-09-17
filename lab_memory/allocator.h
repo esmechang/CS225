@@ -47,6 +47,12 @@ class Allocator
      */
     void printRooms(std::ostream & stream = std::cout);
 
+    ~Allocator();
+
+    Allocator(const Allocator & other);
+
+    Allocator & operator= (Allocator const & other);
+
   private:
     /**
      * Creates the array of letters.
@@ -97,4 +103,5 @@ class Allocator
 
     /** Total number of available seats across all rooms */
     int totalCapacity;
+
 };
