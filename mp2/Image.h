@@ -4,11 +4,14 @@
  */
 
 #pragma once
+#include "cs225/PNG.h"
+#include <cmath>
+using namespace cs225;
 
-using namespace std;
-
-class Image {
+class Image:public PNG {
 public:
+  // Image();
+  // Image(const Image &pic);
   void lighten();
   void lighten(double amount);
   void darken();
