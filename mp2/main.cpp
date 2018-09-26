@@ -24,7 +24,7 @@ int main() {
   //   Before exiting main, save your creation to disk as myImage.png
   //
   Image output;
-  output= sheet.render();
+  output = sheet.render();
   output.writeToFile("myImage.png");
 
   return 0;
