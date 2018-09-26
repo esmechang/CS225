@@ -10,8 +10,6 @@ using namespace cs225;
 
 class Image:public PNG {
 public:
-  // Image();
-  // Image(const Image &pic);
   void lighten();
   void lighten(double amount);
   void darken();
