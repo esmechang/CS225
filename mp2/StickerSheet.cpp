@@ -7,14 +7,14 @@ using namespace cs225;
 StickerSheet::StickerSheet(const Image &picture, unsigned max) {
   array = new Image*[max];
   original = new Image(picture);
+  x_ = new unsigned[max];
+  y_ = new unsigned[max];
   max_ = max;
-  xs = new unsigned[max];
-  ys = new unsigned[max];
 
   for (unsigned int i = 0; i < max_; i++) {
     array[i] = NULL;
-    xs[i] = 0;
-    ys[i] = 0;
+    x_[i] = 0;
+    y_[i] = 0;
   }
 }
 
@@ -26,16 +26,15 @@ void StickerSheet::copy(const StickerSheet &other) {
   original = new Image(*other.original);
   max_ = other.max_;
   // numStickers = other.numStickers;
-
-  xs = new unsigned[max_];
-  ys = new unsigned[max_];
+  x_ = new unsigned[max_];
+  y_ = new unsigned[max_];
   array = new Image *[max_];
 
   for (unsigned int i = 0; i < max_; i++) {
     if (other.array[i] != NULL) {
       array[i] = new Image (*other.array[i]);
-      xs[i] = other.xs[i];
-      ys[i] = other.ys[i];
+      x_[i] = other.x_[i];
+      y_[i] = other.y_[i];
     } else {
       array[i] = NULL;
     }
@@ -54,16 +53,16 @@ void StickerSheet::destroy() {
     }
   }
   delete[] array;
-  delete[] xs;
-  delete[] ys;
+  delete[] x_;
+  delete[] y_;
 
-  ys = NULL;
-  xs = NULL;
+  y_ = NULL;
+  x_ = NULL;
   array = NULL;
 }
 
 const StickerSheet &StickerSheet::operator=(const StickerSheet &other) {
-  if (this !=&other) {
+  if (this != &other) {
     destroy();
     copy(other);
   }
@@ -77,11 +76,13 @@ void StickerSheet::changeMaxStickers(unsigned max) {
   Image **temp = new Image*[max];
   unsigned * otherx = new unsigned[max];
   unsigned * othery = new unsigned[max];
+
+  // changing and setting max
   if (max > max_) {
     for (unsigned int i = 0; i < max_; i++) {
       temp[i] = array[i];
-      otherx[i] = xs[i];
-      othery[i] = ys[i];
+      otherx[i] = x_[i];
+      othery[i] = y_[i];
     }
     for (unsigned int i = max_; i < max_; i++) {
       temp[i] = NULL;
@@ -92,17 +93,18 @@ void StickerSheet::changeMaxStickers(unsigned max) {
   } else {
     for (unsigned int i = 0; i < max_; i++) {
       temp[i] = array[i];
-      otherx[i] = xs[i];
-      othery[i] = ys[i];
+      otherx[i] = x_[i];
+      othery[i] = y_[i];
     }
     for (unsigned i = max; i < max_; i++) {
       delete array[i];
     }
   }
+  // new max
   delete[] array;
   array = temp;
-  xs = otherx;
-  ys = othery;
+  x_ = otherx;
+  y_ = othery;
   max_ = max;
 }
 
@@ -110,8 +112,9 @@ int StickerSheet::addSticker(Image &sticker, unsigned x, unsigned y) {
   for (unsigned i = 0; i < max_; i++) {
     if (array[i] == NULL) {
       array[i] = new Image(sticker);
-      xs[i] = x;
-      ys[i] = y;
+      // position of sticker
+      x_[i] = x;
+      y_[i] = y;
       return i;
     }
   }
@@ -155,18 +158,21 @@ void StickerSheet::removeSticker(unsigned index) {
   }
   delete array[index];
   array[index] = NULL;
-  xs[index] = 0;
-  ys[index] = 0;
+  x_[index] = 0;
+  y_[index] = 0;
   return;
 }
 
 Image StickerSheet::render() const {
   unsigned int picWidth = original->width();
   unsigned int picHeight = original->height();
+
   for (unsigned int i = 0; i < max_; i++) {
     if (array[i] != NULL) {
-      unsigned width = xs[i] + array[i]->width();
-      unsigned height = ys[i] + array[i]->height();
+      // setting new image dimensions
+      unsigned width = x_[i] + array[i]->width();
+      unsigned height = y_[i] + array[i]->height();
+
       if (width > picWidth) {
         picWidth = width;
       }
@@ -177,14 +183,16 @@ Image StickerSheet::render() const {
   }
   Image *output = new Image(*original);
   output->resize(picWidth, picHeight);
+
+  // positioning stickers
   for (unsigned int i = 0; i < max_; i++) {
     if (array[i] != NULL) {
-      for (unsigned int a = xs[i]; a < xs[i] + array[i]->width(); a++) {
-        for (unsigned int b = ys[i]; b < ys[i] + array[i]->height(); b++) {
-          HSLAPixel & photo = output->getPixel(a, b);
-          HSLAPixel & sticker = array[i]->getPixel(a-xs[i], b-ys[i]);
-          if (sticker.a != 0) {
-            photo = sticker;
+      for (unsigned int a = x_[i]; a < x_[i] + array[i]->width(); a++) {
+        for (unsigned int b = y_[i]; b < y_[i] + array[i]->height(); b++) {
+          HSLAPixel &photo = output->getPixel(a, b);
+          HSLAPixel &newSticker = array[i]->getPixel(a-x_[i], b-y_[i]);
+          if (newSticker.a != 0) {
+            photo = newSticker;
           }
         }
       }
