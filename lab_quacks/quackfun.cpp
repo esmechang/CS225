@@ -25,16 +25,23 @@ namespace QuackFun {
 template <typename T>
 T sum(stack<T>& s)
 {
+  if (s.size() == 0) {
+    return 0;
+  }
+  T topX = s.top();
+  T topY = s.top();
+  s.pop();
+  int result = topX + sum(s);
+  s.push(topY);
 
-    // Your code here
-    return T(); // stub return value (0 for primitive types). Change this!
+  return result; // stub return value (0 for primitive types). Change this!
                 // Note: T() is the default value for objects, and 0 for
                 // primitive types
 }
 
 /**
- * Checks whether the given string (stored in a queue) has balanced brackets. 
- * A string will consist of 
+ * Checks whether the given string (stored in a queue) has balanced brackets.
+ * A string will consist of
  * square bracket characters, [, ], and other characters. This function will return
  * true if and only if the square bracket characters in the given
  * string are balanced. For this to be true,
@@ -51,9 +58,21 @@ T sum(stack<T>& s)
  */
 bool isBalanced(queue<char> input)
 {
-
-    // @TODO: Make less optimistic
-    return true;
+  stack<char> s;
+  char x = 'x';
+  while (!input.empty()) {
+    if (input.front() == '[') {
+      s.push(x);
+    }
+    if (input.front() == ']') {
+      if (s.empty()) {
+        return false;
+      }
+      s.pop();
+    }
+    input.pop();
+  }
+  return s.empty();
 }
 
 /**
@@ -71,10 +90,52 @@ bool isBalanced(queue<char> input)
 template <typename T>
 void scramble(queue<T>& q)
 {
-    stack<T> s;
-    // optional: queue<T> q2;
+  stack<T> s;
+  queue<T> q2;
+  int i = 1;
+  int x = 0;
+  int size = q.size();
 
-    // Your code here
+  while (x < size) {
+    if (i % 2 == 0) {
+      int size2 = i;
+      if (size2 > size - x) {
+        size2 = size - x;
+      }
+      for (int j = 0; j < size2; j++) {
+        if (q.empty()) {
+          break;
+        }
+        s.push(q.front());
+        q.pop();
+      }
+      for (int j = 0; j < size2; j++) {
+        if (s.empty()) {
+          break;
+        }
+        q.push(s.top());
+        s.pop();
+      }
+      x += size2;
+      i++;
+    } else {
+      int size2 = i;
+      if (size2 > size - x) {
+        size2 = size - x;
+      }
+      for (int j = 0; j < size2; j++) {
+        if (q.empty()) {
+          break;
+        }
+        q2.push(q.front());
+        q.pop();
+        q.push(q2.front());
+        q2.pop();
+      }
+      x += size2;
+      i++;
+  }
+}
 }
 
 /**
@@ -96,10 +157,20 @@ template <typename T>
 bool verifySame(stack<T>& s, queue<T>& q)
 {
     bool retval = true; // optional
-    // T temp1; // rename me
-    // T temp2; // rename :)
+    T temp1;
+    T temp2;
 
-    // Your code here
+    if (s.empty()) {
+      return true;
+    }
+    temp1 = s.top();
+    s.pop();
+    retval = verifySame(s, q);
+    temp2 = q.front();
+    q.pop();
+    retval = (retval && (temp1 == temp2));
+    q.push(temp2);
+    s.push(temp1);
 
     return retval;
 }
