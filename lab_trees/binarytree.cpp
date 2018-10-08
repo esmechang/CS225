@@ -75,10 +75,23 @@ void BinaryTree<T>::printLeftToRight(const Node* subRoot) const
  * Flips the tree over a vertical axis, modifying the tree itself
  *  (not creating a flipped copy).
  */
-    template <typename T>
+template <typename T>
 void BinaryTree<T>::mirror()
 {
-    //your code here
+  mirrorHelp(root);
+
+}
+
+template <typename T>
+void BinaryTree<T>::mirrorHelp(Node * curr) {
+  if (curr == NULL) {
+    return;
+  }
+  Node * temp = curr->left;
+  curr->left = curr->right;
+  curr->right = temp;
+  mirrorHelp(curr->left);
+  mirrorHelp(curr->right);
 }
 
 
@@ -92,7 +105,21 @@ template <typename T>
 bool BinaryTree<T>::isOrderedIterative() const
 {
     // your code here
-    return false;
+  InorderTraversal<T> traverse(root);
+  typename TreeTraversal<T>::Iterator iter = traverse.begin();
+  typename TreeTraversal<T>::Iterator temp_iter = iter;
+  if (*iter == NULL) {
+    return true;
+  }
+  ++iter;
+  while (iter != traverse.end()) {
+    if ((*iter)->elem < (*temp_iter)->elem) {
+      return false;
+    }
+    temp_iter = iter;
+    ++iter;
+  }
+  return true;
 }
 
 /**
@@ -105,9 +132,31 @@ template <typename T>
 bool BinaryTree<T>::isOrderedRecursive() const
 {
     // your code here
-    return false;
+    if (root == NULL) {
+      return true;
+    }
+    return isOrderedRecursiveHelp(root);
 }
 
+template <typename T>
+bool BinaryTree<T>::isOrderedRecursiveHelp(Node * curr) const {
+  bool result = true;
+  if (curr->left != NULL) {
+    if (curr->elem < curr->left->elem) {
+      return false;
+    } else {
+      result = isOrderedRecursiveHelp(curr->left);
+    }
+  }
+  if (curr->right != NULL) {
+    if (curr->elem > curr->right->elem) {
+      return false;
+    } else {
+      result = result && isOrderedRecursiveHelp(curr->right);
+    }
+  }
+  return result;
+}
 
 /**
  * creates vectors of all the possible paths from the root of the tree to any leaf
@@ -117,10 +166,31 @@ bool BinaryTree<T>::isOrderedRecursive() const
  * added before paths ending in a node further to the right.
  * @param paths vector of vectors that contains path of nodes
  */
+ template <typename T>
+ void BinaryTree<T>::getPaths(vector<vector<T> > &paths) const
+ {
+   vector<T> onePath;
+   getPathsHelp(paths, onePath, root);
+ }
+
+
 template <typename T>
-void BinaryTree<T>::getPaths(vector<vector<T> > &paths) const
+void BinaryTree<T>::getPathsHelp(vector<vector<T> > &paths, vector<T> onePath, Node * curr) const
 {
     // your code here
+    if (curr == NULL) {
+      return;
+    }
+    if (curr->left == NULL && curr->right == NULL) {
+      onePath.push_back(curr->elem);
+      paths.push_back(onePath);
+      return;
+    }
+    onePath.push_back(curr->elem);
+    Node * lefty = curr->left;
+    Node * righty = curr->right;
+    getPathsHelp(paths, onePath, lefty);
+    getPathsHelp(paths, onePath, righty);
 }
 
 
@@ -136,6 +206,16 @@ template <typename T>
 int BinaryTree<T>::sumDistances() const
 {
     // your code here
-    return -1;
+    int total = 0;
+    return sumDistancesHelp(root, total);
 }
 
+template <typename T>
+int BinaryTree<T>::sumDistancesHelp(const Node * curr, int total) const {
+  if (curr == NULL) {
+    return 0;
+  }
+  int a = sumDistancesHelp(curr->left, total + 1);
+  int b = sumDistancesHelp(curr->right, total + 1);
+  return a + b + total;
+}
