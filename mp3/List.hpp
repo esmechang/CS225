@@ -351,7 +351,18 @@ List<T> List<T>::split(int splitPoint) {
 template <typename T>
 typename List<T>::ListNode * List<T>::split(ListNode * start, int splitPoint) {
   /// @todo Graded in MP3.2
-  return NULL;
+  ListNode * curr = start;
+  for (int i = 0; i < splitPoint; i++) {
+    if (curr->next != NULL) {
+      curr = curr->next;
+    } else {
+      break;
+    }
+  }
+  curr->prev->next = NULL;
+  tail_ = curr->prev;
+  curr->prev = NULL;
+  return curr;
 }
 
 /**
@@ -392,7 +403,39 @@ void List<T>::mergeWith(List<T> & otherList) {
 template <typename T>
 typename List<T>::ListNode * List<T>::merge(ListNode * first, ListNode* second) {
   /// @todo Graded in MP3.2
-  return NULL;
+  ListNode * currList;
+  ListNode * currNext;
+  ListNode * list1 = first;
+  ListNode * list2 = second;
+
+  if (list1->data < list2->data) {
+    currList = list1;
+    list1 = list1->next;
+    head_ = list1;
+  } else {
+    currList = list2;
+    list2 = list2->next;
+    head_ = list2;
+  }
+  while (list1 != NULL || list2 != NULL) {
+    if (list1 == NULL || (list2 != NULL && list2->data < list1->data)) {
+      currList->next = list2;
+      currNext = currList->next;
+      currNext->prev = currList;
+      currList = currList->next;
+      list2 = list2->next;
+    } else {
+      currList->next = list1;
+      currNext = currList->next;
+      currNext->prev = currList;
+      currList = currList->next;
+      list1 = list1->next;
+    }
+  }
+  if (first->data < second->data) {
+    return first;
+  }
+  return second;
 }
 
 /**
@@ -420,5 +463,16 @@ void List<T>::sort() {
 template <typename T>
 typename List<T>::ListNode* List<T>::mergesort(ListNode * start, int chainLength) {
   /// @todo Graded in MP3.2
-  return NULL;
+  if (chainLength == 1) {
+    return start;
+  }
+  int middle = chainLength/2;
+
+  ListNode * leftSide = start;
+  ListNode * rightSide = split(start, middle);
+  
+  leftSide = mergesort(leftSide, middle);
+  rightSide = mergesort(rightSide, chainLength-middle);
+
+  return merge(leftSide, rightSide);
 }
