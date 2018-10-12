@@ -125,19 +125,19 @@ void HuffmanTree::buildTree(const vector<Frequency>& frequencies)
      * to the root and you're done!
      */
      TreeNode * temp;
-     TreeNode * one;
-     TreeNode * two;
+     TreeNode * queueOne;
+     TreeNode * queueTwo;
      for (unsigned long i = 0; i < frequencies.size(); i++) {
        singleQueue.push(new TreeNode(frequencies[i]));
      }
      while (singleQueue.size() + mergeQueue.size() != 1) {
-       one = removeSmallest(singleQueue, mergeQueue);
+       queueOne = removeSmallest(singleQueue, mergeQueue);
        if (singleQueue.size() + mergeQueue.size() != 0) {
-         two = removeSmallest(singleQueue, mergeQueue);
+         queueTwo = removeSmallest(singleQueue, mergeQueue);
        }
-       temp = new TreeNode(one->freq.getFrequency() + two->freq.getFrequency());
-       temp->left = one;
-       temp->right = two;
+       temp = new TreeNode(queueOne->freq.getFrequency() + queueTwo->freq.getFrequency());
+       temp->left = queueOne;
+       temp->right = queueTwo;
        mergeQueue.push(temp);
      }
      root_ = mergeQueue.front();
@@ -160,7 +160,7 @@ void HuffmanTree::decode(stringstream& ss, BinaryFileReader& bfile)
          * @todo Your code here!
          *
          * This code is reading in all of the bits in the binary file
-         * given. After reading a bit, we go left if the bit was a 0 (or
+         * given. After reading a bit, we go left twoif the bit was a 0 (or
          * false), and we go right if the bit was a 1 (or true).
          *
          * Special case: if we are at a leaf node, we should "print" its
