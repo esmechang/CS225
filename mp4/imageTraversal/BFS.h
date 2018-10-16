@@ -26,7 +26,7 @@ public:
 
   ImageTraversal::Iterator begin();
   ImageTraversal::Iterator end();
-  
+
   void add(const Point & point);
   Point pop();
   Point peek() const;
@@ -35,4 +35,8 @@ public:
 private:
   /** @todo [Part 1] */
   /** add private members here*/
+  PNG picture;
+  Point pt;
+  double toler;
+  std::queue<Point> q;
 };

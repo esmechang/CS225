@@ -16,14 +16,18 @@
 /**
  * Initializes a depth-first ImageTraversal on a given `png` image,
  * starting at `start`, and with a given `tolerance`.
- * 
+ *
  * @param png The image this DFS is going to traverse
  * @param start The start point of this DFS
  * @param tolerance If the current point is too different (difference larger than tolerance) with the start point,
  * it will not be included in this DFS
  */
-DFS::DFS(const PNG & png, const Point & start, double tolerance) {  
+DFS::DFS(const PNG & png, const Point & start, double tolerance) {
   /** @todo [Part 1] */
+  picture = png;
+  pt = start;
+  toler = tolerance;
+  stack.push(start);
 }
 
 /**
@@ -47,6 +51,7 @@ ImageTraversal::Iterator DFS::end() {
  */
 void DFS::add(const Point & point) {
   /** @todo [Part 1] */
+  stack.push(point);
 }
 
 /**
@@ -54,7 +59,9 @@ void DFS::add(const Point & point) {
  */
 Point DFS::pop() {
   /** @todo [Part 1] */
-  return Point(0, 0);
+  Point a = stack.top();
+  stack.pop();
+  return a;
 }
 
 /**
@@ -62,7 +69,7 @@ Point DFS::pop() {
  */
 Point DFS::peek() const {
   /** @todo [Part 1] */
-  return Point(0, 0);
+  return stack.top();
 }
 
 /**
