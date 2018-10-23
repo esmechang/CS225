@@ -132,6 +132,8 @@ class AVLTree
     */
     vector<string> getFunctionOrder();
 
+    int maximum(Node *x, Node *y);
+
   private:
     /**
      * The root of the tree.
