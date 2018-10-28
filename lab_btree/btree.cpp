@@ -48,7 +48,23 @@ V BTree<K, V>::find(const BTreeNode* subroot, const K& key) const
      * anywhere in the tree and return the default V.
      */
 
-    return V();
+    // if (subroot->element.size() == 0) {
+    //   return V();
+    // }
+    // int temp = insertion_idx(subroot->elements, key);
+    // if (subroot->elements[temp] == key) {
+    //   return subroot->elements[temp].value;
+    // }
+    // return find(subroot->children[temp], key);
+
+    if (subroot->elements[first_larger_idx].key == key && first_larger_idx != subroot->elements.size()) {
+      return subroot->elements[first_larger_idx].value;
+    } else if (subroot->is_leaf) {
+      return V();
+    } else {
+      return find(subroot->children[first_larger_idx], key);
+    }
+
 }
 
 /**
@@ -128,7 +144,7 @@ void BTree<K, V>::split_child(BTreeNode* parent, size_t child_idx)
      * | 2 | 4 |
      * Mid element is at index (2 - 1) / 2 = 0 .
      * Mid child (bar) is at index 2 / 2 = 1 .
-     * This definition is to make this BTree act like the visualization
+     * This definition is to make this act like the visualization
      * at
      * https://www.cs.usfca.edu/~galles/visualization/BTree.html
      */
@@ -146,6 +162,24 @@ void BTree<K, V>::split_child(BTreeNode* parent, size_t child_idx)
 
 
     /* TODO Your code goes here! */
+    parent->elements.insert(elem_itr, child->elements[mid_elem_idx]);
+    parent->children.insert(child_itr, new_right);
+    new_right->elements.assign(mid_elem_itr + 1, child->elements.end());
+    new_left->elements.erase(mid_elem_itr, child->elements.end());
+
+    if (child->children.size() != 0) {
+      new_right->children.assign(mid_child_itr, child->children.end());
+      new_left->children.erase(mid_child_itr, child->children.end());
+    }
+    // if (!new_right->is_leaf) {
+    //   new_right->children.assign(mid_child_itr, new_left->children.end());
+    // }
+    //
+    // new_left->elements.assign(new_left->elements.begin(), mid_elem_itr);
+    // if (!new_left->is_leaf) {
+    //   new_left->children.assign(new_left->children.begin(), mid_elem_itr);
+    // }
+    // return;
 }
 
 /**
@@ -170,4 +204,17 @@ void BTree<K, V>::insert(BTreeNode* subroot, const DataPair& pair)
     size_t first_larger_idx = insertion_idx(subroot->elements, pair);
 
     /* TODO Your code goes here! */
+    if (subroot->elements[first_larger_idx].key == pair.key && first_larger_idx != subroot->elements.size()) {
+      return;
+    }
+    if (subroot->is_leaf) {
+      auto iter = subroot->elements.begin() + first_larger_idx;
+      subroot->elements.insert(iter, pair);
+    } else {
+      insert(subroot->children[first_larger_idx], pair);
+      if (subroot->children[first_larger_idx]->elements.size() >= order) {
+        split_child(subroot, first_larger_idx);
+      }
+    }
+    return;
 }
