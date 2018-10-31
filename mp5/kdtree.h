@@ -243,6 +243,9 @@ class KDTree
                    colored_out::enable_t enable_bold = colored_out::COUT,
                    int modWidth = -1) const;
 
+    int partition(const vector<Point<Dim>> & vec, int small, int large, int dimen);
+    int smallestElm(const vector<Point<Dim>> & vec, int small, int large, int median);
+
   private:
 
     /** Internal representation, root and size **/

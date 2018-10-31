@@ -116,7 +116,7 @@ void HuffmanTree::buildTree(const vector<Frequency>& frequencies)
      *
      * Next, until there is only one node on the two queues (that is, one
      * of the queues is empty and one has a single node), remove the two
-     * smallest entries freturn root_;rom the two queues. Then, create a new internal
+     * smallest entries from the two queues. Then, create a new internal
      * node with these nodes as children, whose frequency is the sum of
      * these two children's frequencies. Place the new internal node onto
      * the back of the mergeQueue.

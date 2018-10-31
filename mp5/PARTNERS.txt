@@ -1,2 +1,2 @@
-netid1
-netid2
+netid1 esmesc2 
+netid2 sal3 (partner)
