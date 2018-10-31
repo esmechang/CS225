@@ -243,8 +243,6 @@ class KDTree
                    colored_out::enable_t enable_bold = colored_out::COUT,
                    int modWidth = -1) const;
 
-    int partition(const vector<Point<Dim>> & vec, int small, int large, int dimen);
-    int smallestElm(const vector<Point<Dim>> & vec, int small, int large, int median);
 
   private:
 
@@ -262,6 +260,12 @@ class KDTree
     /**
      * @todo Add your helper functions here.
      */
+     vector<Point<Dim>>vec;
+     KDTreeNode*buildTree(vector<Point<Dim>> & vec, int small, int large, int dimen);
+     int partition(vector<Point<Dim>> & vec, int small, int large, int median, int dimen);
+     void smallestElm(vector<Point<Dim>> & vec, int small, int large, int median, int dimen);
+     void destroy(KDTreeNode *root);
+     Point<Dim> neighborHelper(KDTreeNode *curr, const Point<Dim> target, Point<Dim> retval, int curr_dim) const;
 };
 
 #include "kdtree.hpp"
