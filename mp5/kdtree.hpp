@@ -118,7 +118,7 @@ int KDTree<Dim>::partition(vector<Point<Dim>> & vec, int small, int large, int m
       i++;
     }
   }
-  // swap median point and end point 
+  // swap median point and end point
   Point<Dim> swap2 = vec[i];
   vec[i] = vec[large];
   vec[large] = swap2;
@@ -188,10 +188,54 @@ Point<Dim> KDTree<Dim>::findNearestNeighbor(const Point<Dim>& query) const
      * @todo Implement this function!
      */
 
-    return Point<Dim>();
+    return neighborHelper(root, query, root->point, 0);
 }
 
 template <int Dim>
 Point<Dim> KDTree<Dim>::neighborHelper(KDTreeNode *curr, const Point<Dim> target, Point<Dim> retval, int curr_dim) const {
-
+  bool lefty_there = false;
+  Point<Dim> best;
+  if (curr->left == NULL && curr->right == NULL) { // if it is leaf node then retval is curr point
+    return retval = curr->point;
+  }
+  if (smallerDimVal(target, curr->point, curr_dim)) { // left traversal
+    if (curr->left != NULL) {
+      retval = neighborHelper(curr->left, target, retval, (curr_dim+1)%Dim);
+      lefty_there = true;
+    }
+  }
+  if (smallerDimVal(curr->point, target, curr_dim)) { // right traversal
+    if (curr->right != NULL) {
+      retval = neighborHelper(curr->right, target, retval, (curr_dim+1)%Dim);
+    }
+  }
+  // get the distance between the two points
+  double dist = 0;
+  for (int i = 0; i < Dim; i++) {
+    dist += (target[i]-retval[i])*(target[i]-retval[i]);
+  }
+  // comparing distance of curr retval with distance of curr node of target
+  double retval_target = dist;
+  double curr_target = ((curr->point)[curr_dim]-target[curr_dim])*((curr->point)[curr_dim]-target[curr_dim]);
+  if (curr_target <= retval_target) { // if retval_target is not the nearest point we will go down tree
+    if (lefty_there) {
+      if (curr->right != NULL) {
+        best = neighborHelper(curr->right, target, retval, (curr_dim+1)%Dim);
+        if (shouldReplace(target, retval, best)) {
+          retval = best;
+        }
+      }
+    } else {
+      if (curr->left != NULL) {
+        best = neighborHelper(curr->left, target, retval, (curr_dim+1)%Dim);
+        if (shouldReplace(target, retval, best)) {
+          retval = best;
+        }
+      }
+    }
+  }
+  if (shouldReplace(target, retval, curr->point)) {
+    retval = curr->point;
+  }
+  return retval;
 }

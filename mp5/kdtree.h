@@ -265,7 +265,7 @@ class KDTree
      int partition(vector<Point<Dim>> & vec, int small, int large, int median, int dimen);
      void smallestElm(vector<Point<Dim>> & vec, int small, int large, int median, int dimen);
      void destroy(KDTreeNode *root);
-     Point<Dim> neighborHelper(KDTreeNode *curr, const Point<Dim> target, Point<Dim> retval, int curr_dim) const;
+     Point<Dim> neighborHelper(KDTreeNode *curr, Point<Dim> target, Point<Dim> retval, int curr_dim) const;
 };
 
 #include "kdtree.hpp"
