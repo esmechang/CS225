@@ -87,8 +87,19 @@ void LPHashTable<K, V>::insert(K const& key, V const& value)
      * Also, don't forget to mark the cell for probing with should_probe!
      */
 
-    (void) key;   // prevent warnings... When you implement this function, remove this line.
-    (void) value; // prevent warnings... When you implement this function, remove this line.
+    // (void) key;   // prevent warnings... When you implement this function, remove this line.
+    // (void) value; // prevent warnings... When you implement this function, remove this line.
+    elems++;
+    if (shouldResize()) {
+      resizeTable();
+    }
+    pair<K, V> *p = new pair<K, V>(key, value);
+    int index = hash(key, size);
+    while (table[index] != NULL) {
+      index = (index+1)%size;
+    }
+    table[index] = p;
+    should_probe[index] = true;
 }
 
 template <class K, class V>
@@ -97,18 +108,34 @@ void LPHashTable<K, V>::remove(K const& key)
     /**
      * @todo: implement this function
      */
+     int index = findIndex(key);
+     if (index != -1) {
+       delete table[index];
+       table[index] = NULL;
+       --elems;
+     }
 }
 
 template <class K, class V>
 int LPHashTable<K, V>::findIndex(const K& key) const
 {
-    
+
     /**
      * @todo Implement this function
      *
      * Be careful in determining when the key is not in the table!
      */
-
+    int index = hash(key, size);
+    int begin = index;
+    while (should_probe[index]) {
+      if (table[index] != NULL && table[index]->first == key) {
+        return index;
+      }
+      index = (index+1)%size;
+      if (index == begin) {
+        break;
+      }
+    }
     return -1;
 }
 
@@ -166,4 +193,27 @@ void LPHashTable<K, V>::resizeTable()
      *
      * @hint Use findPrime()!
      */
+    size_t newSize = findPrime(size*2);
+    pair<K, V>**tempy = new pair<K, V>*[newSize];
+
+    delete[] should_probe;
+    should_probe = new bool [newSize];
+
+    for (unsigned long i = 0; i < newSize; i++) {
+      tempy[i] = NULL;
+      should_probe[i] = false;
+    }
+    for (unsigned long i = 0; i < size; i++) {
+      if (table[i] != NULL) {
+        int index = hash(table[i]->first, newSize);
+        while (tempy[index] != NULL) {
+          index = (index+1)%newSize;
+        }
+        tempy[index] = table[i];
+        should_probe[index] = true;
+      }
+    }
+    delete[] table;
+    table = tempy;
+    size = newSize;
 }

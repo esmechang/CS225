@@ -8,11 +8,11 @@
  */
 
 #include "schashtable.h"
- 
+
 using hashes::hash;
 using std::list;
 using std::pair;
-  
+
 template <class K, class V>
 SCHashTable<K, V>::SCHashTable(size_t tsize)
 {
@@ -62,6 +62,13 @@ void SCHashTable<K, V>::insert(K const& key, V const& value)
      * @todo Implement this function.
      *
      */
+     ++elems;
+     if (shouldResize()) {
+       resizeTable();
+     }
+     pair<K, V> pr(key, value);
+     int index = hash(key, size);
+     table[index].push_front(pr);
 }
 
 template <class K, class V>
@@ -74,7 +81,14 @@ void SCHashTable<K, V>::remove(K const& key)
      * Please read the note in the lab spec about list iterators and the
      * erase() function on std::list!
      */
-    (void) key; // prevent warnings... When you implement this function, remove this line.
+    // (void) key; // prevent warnings... When you implement this function, remove this line.
+    int index = hash(key, size);
+    for (it = table[index].begin(); it != table[index].end(); it++) {
+      if (it->first == key) {
+        table[index].erase(it);
+        break;
+      }
+    }
 }
 
 template <class K, class V>
@@ -84,7 +98,13 @@ V SCHashTable<K, V>::find(K const& key) const
     /**
      * @todo: Implement this function.
      */
-
+     int index = hash(key, size);
+     typename list<pair<K, V>>:: iterator iter;
+     for (iter = table[index].begin(); iter != table[index].end(); iter++) {
+       if (iter->first == key) {
+         return iter->second;
+       }
+     }
     return V();
 }
 
@@ -142,4 +162,17 @@ void SCHashTable<K, V>::resizeTable()
      *
      * @hint Use findPrime()!
      */
+     int index = 0;
+     size_t newSize = findPrime(size * 2);
+     std::list<std::pair<K, V>>*templist = new list<pair<K, V>>[newSize];
+     for (unsigned long i = 0; i < size; i++) {
+       for (it = table[i].begin(); it != table[i].end(); it++) {
+         index = hash(it->first, newSize);
+         pair<K, V> p(it->first, it->second);
+         templist[index].push_back(p);
+       }
+     }
+     delete[] table;
+     table = templist;
+     size = newSize;
 }
