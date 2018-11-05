@@ -91,27 +91,18 @@ void DHHashTable<K, V>::insert(K const& key, V const& value)
 
     // (void) key;   // prevent warnings... When you implement this function, remove this line.
     // (void) value; // prevent warnings... When you implement this function, remove this line.
-    // elems++;
-    // if (shouldResize()) {
-    //   resizeTable();
-    // }
-    // pair<K, V> *p = new pair<K, V>(key, value);
-    // int index1 = hash(key, size);
-    // if (table[index1] != NULL) {
-    //   int index2 = secondary_hash(key, size);
-    //   int i = 1;
-    //   while (1) {
-    //       int newIndex = (index1+1*index2)%size;
-    //       if (table[newIndex] == -1) {
-    //         table[newIndex] = key;
-    //         break;
-    //       }
-    //       i++;
-    //   }
-    // } else {
-    //   table[index] = key;
-    //   size++;
-    // }
+    elems++;
+    if (shouldResize()) {
+      resizeTable();
+    }
+    pair<K, V> *p = new pair<K, V>(key, value);
+    int index1 = hash(key, size);
+    while (table[index1] != NULL) {
+      int index2 = secondary_hash(key, size);
+      index1 = (index1+index2)%size;
+    }
+    table[index1] = p;
+    should_probe[index1] = true;
 
 }
 
@@ -125,7 +116,7 @@ void DHHashTable<K, V>::remove(K const& key)
      if (index != -1) {
        delete table[index];
        table[index] = NULL;
-       --elems;
+       elems--;
      }
 }
 
@@ -141,7 +132,8 @@ int DHHashTable<K, V>::findIndex(const K& key) const
        if (table[index] != NULL && table[index]->first == key) {
          return index;
        }
-       index = (index+1)%size;
+       int index2 = secondary_hash(key, size);
+       index = (index+index2)%size;
        if (index == begin) {
          break;
        }
