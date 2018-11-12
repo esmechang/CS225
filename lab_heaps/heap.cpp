@@ -105,7 +105,7 @@ template <class T, class Compare>
 T heap<T, Compare>::pop()
 {
     // @TODO Remove, and return, the element with highest priority
-    if (empty()) {
+    if (empty() == true) {
       return T();
     }
     T minimumValue = _elems[1];
