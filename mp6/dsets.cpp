@@ -1,12 +1,14 @@
 /* Your code here! */
 #include "dsets.h"
 
+// makes n unconnected root nodes at the end of the vector
 void DisjointSets::addelements(int num) {
   for (int i = 0; i < num; i++) {
     v.push_back(-1);
   }
 }
 
+// path compression to find elem
 int DisjointSets::find(int elem) {
   if (v[elem] < 0) {
     return elem;
@@ -15,6 +17,7 @@ int DisjointSets::find(int elem) {
   }
 }
 
+// smaller disjoint set should point at the larger
 void DisjointSets::setunion(int a, int b) {
   int f1 = find(a);
   int f2 = find(b);
@@ -30,6 +33,7 @@ void DisjointSets::setunion(int a, int b) {
   }
 }
 
+// returns number of nodes in up-tree
 int DisjointSets::size(int elem) {
   int retval = find(elem);
   return v[retval]*-1;
