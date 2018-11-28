@@ -1,194 +1,243 @@
 /* Your code here! */
 #include "maze.h"
+#include "cs225/HSLAPixel.h"
+#include "cs225/PNG.h"
 
+using namespace cs225;
 SquareMaze::SquareMaze() {
 
 }
-
 void SquareMaze::makeMaze(int width, int height) {
-  w = width;
-  h = height;
-  size = w*h;
-  for (int m = 0; m < size; m++) { // makes a square grid with walls
-    wall.push_back(3);
+width_ = width;
+height_ = height;
+size_ = height_ * width_;
+for(int i=0; i<size_; i++){
+  Down.push_back(1);
+  Right.push_back(1);
   }
-  DisjointSets ways;
-  ways.addelements(w*h);
-  while (ways.size(0) < size) {
-    int rand_idx = rand() % size;
-    int delete_wall = rand() % 2;
-    int idx;
-    if ((rand_idx + 1) % width == 0 || delete_wall == 1) {
-      idx = width;
+//make square maze with all walls filled
+DisjointSets path;
+path.addelements(size_); //to detect cycle
+int i = 0;
+while(i<size_-1){
+  int random_wall = rand()%2; //which wall to rmove?
+  int random_x = rand()%width_; //where?
+  int random_y = rand()%height_;
+  if(random_wall){
+    if(random_x < width_ -1 && Right[random_x+random_y*width_] && path.find(random_x+random_y*width_) != path.find(random_x+random_y*width_+1)){
+      Right[random_x+random_y*width_] = 0;
+      path.setunion(path.find(random_x+random_y*width_), path.find(random_x+random_y*width_+1));
+      i++;
     }
-    if (rand_idx >= (w * (h-1))) {
-      delete_wall = 0;
-    }
-    if (rand_idx == w * (h-1)) {
-      continue;
-    }
-    int check1 = ways.find(idx);
-    int check2 = ways.find(rand_idx+idx);
-    if (check1 != check2) {
-      ways.setunion(check1, check2);
-      if (delete_wall == 0) {
-        int horiz = rand_idx % w;
-        int vert = rand_idx / w;
-        setWall(horiz, vert, 0, false);
-      } else {
-        int horiz = rand_idx % w;
-        int vert = rand_idx / w;
-        setWall(horiz, vert, 1, false);
-      }
+  }
+  else{
+    if(random_y < height_-1 && Down[random_x+random_y*width_]&&path.find(random_x+random_y*width_) != path.find(random_x+(random_y+1)*width_)){
+      Down[random_x+random_y*width_] = 0;
+      path.setunion(path.find(random_x+random_y*width_), path.find(random_x+(1+random_y)*width_));
+      i++;
     }
   }
 }
+}
+
 
 bool SquareMaze::canTravel(int x, int y, int dir) const {
-// 0 = no wall
+// 0 = no walls
 // 1 = right wall
 // 2 = down wall
-// 3 = d & r wall
+// 3 = down and right walls
+if (dir == 0) return !(Right[x+y*width_]);
 
-  if (x <= 0 && y <= 0 && x <= w - 1 && y <= h - 1) {
-    if (dir == 0) {
-      if (wall[x+y*w] == 2 || wall[x+y*w] == 0) {
-        return true;
-      }
-      return false;
-    }
-    if (dir == 1) {
-      if (wall[x+y*w] == 1 || wall[x+y*w] == 0) {
-        return true;
-      }
-      return false;
-    }
-    if (dir == 2) {
-      if (wall[x+y*w] == 2 || wall[x+y*w] == 0) {
-        return true;
-      }
-      return false;
-    }
-    if (dir == 3) {
-      if (wall[x+y*w] == 1 || wall[x+y*w] == 0) {
-        return true;
-      }
-      return false;
-    }
-  }
-  return false;
+if (dir == 1) return !(Down[x+y*width_]);
+if (dir == 2){
+  if (x == 0) return false;
+  else return !(Right[x-1+y*width_]);
+}if (dir == 3){
+  if (y == 0)
+    return false;
+  else
+    return !(Down[x + (y-1) * width_]);}
+
+return false;
 }
 
 void SquareMaze::setWall(int x, int y, int dir, bool exists) {
-  // input wall into maze
-  if (exists == true) {
-    if (dir == 0) {
-      // if there is no wall or a right wall
-      if (wall[x+y*w] == 1 || wall[x+y*w] == 0) {
-        wall[x+y*w] = 1; // right wall exists
-        return;
-      } else { // if there is a down wall
-        wall[x+y*w] = 3; // d & r wall is there
-        return;
-      }
-    } else { // if there is no wall or down wall
-      if (wall[x+y*w] == 2 || wall[x+y*w] == 0) {
-        wall[x+y*w] = 2; // down wall exists
-        return;
-      } else { // if there is a right wall
-        wall[x+y*w] = 3; // d & r wall is there
-      }
-    }
-  } else { // deleting wall
-    if (dir == 0) { // deleting right wall
-      if (wall[x+y*w] == 3) {
-        wall[x+y*w] = 2; // down wall exists
-        return;
-      }
-      if (wall[x+y*w] == 1) {
-        wall[x+y*w] = 0; // no walls
-        return;
-      }
-    } else { // deleting down wall
-      if (wall[x+y*w] == 3) {
-        wall[x+y*w] = 1;
-        return;
-      }
-      if (wall[x+y*w] == 2) {
-        wall[x+y*w] = 0;
-        return;
-      }
-    }
+  // 0 = no walls
+  // 1 = right wall
+  // 2 = down wall
+  // 3 = down and right walls
+  if (dir==0){
+    if(exists == true)
+  Right[x+y*width_] = 1;
+  else Right[x+y*width_] = 0;
+}
+  if(dir==1){
+    if(exists == true)
+    Down[x+y*width_] = 1;
+    else Down[x+y*width_] = 0;
   }
 }
+vector<int> SquareMaze::solveMaze() { //BFS approach
+    vector<int> vect;
+    vector<bool> yesno;
+    map<int, int>mom;
+    queue<int> q ;
+    q.push(0);
 
-vector<int>SquareMaze::solveMaze() {
-  vector<int> ways;
-  map<int, int> go; // tracking your
-  map<int, int> count; //
-  queue<int> q;
 
-  q.push(0);
-  count.insert(pair<int, int>(0,0));
-  while (q.empty() == false) {
-    int f = q.front();
-    q.pop();
-    int horiz = f % w;
-    int vert = f / w;
-    if (count.find((horiz+1)+vert*w) == count.end() && canTravel(horiz, vert, 0)) {
-      go.insert(pair<int, int>((horiz+1)+vert*w, f));
-      count.insert(pair<int, int>((horiz+1)+vert*w, f));
-      q.push((horiz+1)+vert*w);
+    for(int i = 0; i< size_; i++)
+    yesno.push_back(false); //everywhere false
+
+    yesno[0] = true; //first step true
+
+    while(!q.empty()){
+      int temp = q.front();
+      q.pop();
+      int x = temp% width_;
+      int y = temp/width_;
+      if(y==height_-1)
+      vect.push_back(temp);
+
+      if(canTravel(x,y,0) && !yesno[temp+1]){
+        mom.insert(pair<int,int>(temp+1, temp));
+        yesno[temp+1] = true;
+        q.push(temp+1);
+      }
+      if(canTravel(x,y,1) && !yesno[temp+width_]){
+        mom.insert(pair<int,int>(temp+width_, temp));
+        yesno[temp+width_] = true;
+        q.push(temp+width_);
+      }
+      if(canTravel(x,y,2) && !yesno[temp-1]){
+        mom.insert(pair<int,int>(temp-1, temp));
+        yesno[temp-1] = true;
+        q.push(temp-1);
+      }
+      if(canTravel(x,y,3) && !yesno[temp-width_]){
+        mom.insert(pair<int,int>(temp-width_, temp));
+        yesno[temp-width_] = true;
+        q.push(temp-width_);
+      }
     }
-    if (count.find(horiz+(vert+1)*w) == count.end() && canTravel(horiz, vert, 1)) {
-      go.insert(pair<int, int>(horiz+(vert+1)*w, f));
-      count.insert(pair<int, int>(horiz+(vert+1)*w, f));
-      q.push(horiz+(vert+1)*w);
+    vector<int>vect2;
+    int temp = width_-1;
+    while(vect[temp] == vect[temp-1]){
+      temp = temp-1;}
+      int temp2 = vect[temp];
+      while(temp2!=0){
+        int temp3 = mom[temp2];
+        if(temp2 == temp3 +1)
+        vect2.push_back(0);
+        if(temp2 == temp3+width_)
+        vect2.push_back(1);
+        if(temp2==temp3-1)
+        vect2.push_back(2);
+        if(temp2==temp3-width_)
+        vect2.push_back(3);
+        temp2 = temp3;
+      }
+      reverse(vect2.begin(), vect2.end());
+      return vect2;
     }
-    if (count.find((horiz-1)+vert*w) == count.end() && canTravel(horiz, vert, 2)) {
-      go.insert(pair<int, int>((horiz-1)+vert*w, f));
-      count.insert(pair<int, int>((horiz-1)+vert*w, f));
-      q.push((horiz-1)+vert*w);
+
+
+PNG* SquareMaze::drawMaze() const{ //draws maze without solution
+    PNG* maize = new PNG(width_*10+1, height_*10+1);
+
+    for (int i = 0; i < height_*10+1; i++){
+              HSLAPixel &pix = maize->getPixel(0, i);
+              pix.h = 0;
+              pix.s = 0;
+              pix.l = 0;
+            }
+
+    for (int i = 10; i < width_*10+1; i++){
+              HSLAPixel &pix = maize->getPixel(i, 0);
+              pix.h = 0;
+              pix.s = 0;
+              pix.l = 0;
+            }
+
+    for (int x = 0; x < width_; x++){
+        for (int y = 0; y < height_; y++){
+              if (Right[x+y*width_]){
+                  for (int i = 0; i < 11; i++){
+                    HSLAPixel &pix = maize->getPixel(10*x+10, 10*y+i);
+                    pix.h = 0;
+                    pix.s = 0;
+                    pix.l = 0;
+                    }}
+              if (Down[x+y*width_]){
+                  for (int i = 0; i < 11; i++){
+                    HSLAPixel&pix = maize->getPixel(10*x+i, 10*y+10);
+                    pix.h = 0;
+                    pix.s = 0;
+                    pix.l = 0;
+                    }}
+              }}
+          return maize;
     }
-    if (count.find(horiz+(vert-1)*w) == count.end() && canTravel(horiz, vert, 3)) {
-      go.insert(pair<int, int>(horiz+(vert-1)*w, f));
-      count.insert(pair<int, int>(horiz+(vert-1)*w, f));
-      q.push(horiz+(vert-1)*w);
+PNG * SquareMaze::drawMazeWithSolution() {
+  PNG * maize = drawMaze();
+  vector<int> solved = solveMaze();
+  int x = 5;
+  int y = 5;
+  for(unsigned i = 0; i<solved.size();i++){
+    if(solved[i]==0){
+      for(int i =0; i<10; i++){
+        HSLAPixel & pix = maize->getPixel(x,y);
+        pix.h = 0;
+        pix.s = 1;
+        pix.l = 0.5;
+        pix.a = 1;
+        x++;
+      }
+    }
+    if(solved[i]==1){
+      for(int i =0; i<10; i++){
+        HSLAPixel & pix = maize->getPixel(x,y);
+        pix.h = 0;
+        pix.s = 1;
+        pix.l = 0.5;
+        pix.a = 1;
+        y++;
+      }
+    }
+    if(solved[i]==2){
+      for(int i =0; i<10; i++){
+        HSLAPixel & pix = maize->getPixel(x,y);
+        pix.h = 0;
+        pix.s = 1;
+        pix.l = 0.5;
+        pix.a = 1;
+        x--;
+      }
+    }
+    if(solved[i]==3){
+      for(int i =0; i<10; i++){
+        HSLAPixel & pix = maize->getPixel(x,y);
+        pix.h = 0;
+        pix.s = 1;
+        pix.l = 0.5;
+        pix.a = 1;
+        y--;
+      }
     }
   }
-  int max_d = 0; // maximum distance
-  for (int c = 0; c < w; c++) {
-    int idx = c + (w + (h-1));
-    vector<int> right_way;
-    while (idx != 0) {
-      int dist = idx - go[idx];
-      if (dist == 1) {
-        right_way.push_back(0);
-      }
-      if (dist == w) {
-        right_way.push_back(1);
-      }
-      if (dist == -1) {
-        right_way.push_back(2);
-      }
-      if (dist == (w*-1)) {
-        right_way.push_back(3);
-      }
-      idx = go[idx];
-    }
-    if (max_d < (int)right_way.size()) {
-      ways = right_way;
-      max_d = right_way.size();
-    }
+  HSLAPixel & pix = maize->getPixel(x,y);
+  pix.h = 0;
+  pix.s = 1;
+  pix.l = 0.5;
+  pix.a = 1;
+  x-=4;
+  y+=5;
+  for(int i =0; i<9; i++){
+    HSLAPixel & pix = maize->getPixel(x,y);
+    pix.h = 0;
+    pix.s = 0;
+    pix.l = 1;
+    pix.a = 1;
+    x++;
   }
-  reverse(ways.begin(), ways.end());
-  return ways;
+  return maize;
 }
-
-// cs225::PNG *SquareMaze::drawMaze() const {
-//
-// }
-//
-// cs225::PNG *SquareMaze::drawMazeWithSolution() {
-//
-// }

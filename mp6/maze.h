@@ -24,9 +24,10 @@ public:
   vector<int>solveMaze();
   cs225::PNG *drawMaze() const;
   cs225::PNG *drawMazeWithSolution();
+  vector<int> Down;
+  vector<int> Right;
 private:
-  int w; // width
-  int h; // height
-  int size;
-  vector<int> wall;
+  int width_; // width
+  int height_; // height
+  int size_;
 };
