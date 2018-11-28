@@ -2,11 +2,14 @@
 #include "maze.h"
 #include "cs225/HSLAPixel.h"
 #include "cs225/PNG.h"
-
 using namespace cs225;
+
+// makes empty maze
 SquareMaze::SquareMaze() {
 
 }
+
+// makes new maze with width and height variables
 void SquareMaze::makeMaze(int width, int height) {
 width_ = width;
 height_ = height;
@@ -15,13 +18,12 @@ for(int i=0; i<size_; i++){
   Down.push_back(1);
   Right.push_back(1);
   }
-//make square maze with all walls filled
 DisjointSets path;
-path.addelements(size_); //to detect cycle
+path.addelements(size_);
 int i = 0;
 while(i<size_-1){
-  int random_wall = rand()%2; //which wall to rmove?
-  int random_x = rand()%width_; //where?
+  int random_wall = rand()%2;
+  int random_x = rand()%width_;
   int random_y = rand()%height_;
   if(random_wall){
     if(random_x < width_ -1 && Right[random_x+random_y*width_] && path.find(random_x+random_y*width_) != path.find(random_x+random_y*width_+1)){
@@ -40,7 +42,7 @@ while(i<size_-1){
 }
 }
 
-
+// whether it can go to a coordinate or not in the maze
 bool SquareMaze::canTravel(int x, int y, int dir) const {
 // 0 = no walls
 // 1 = right wall
@@ -61,6 +63,7 @@ if (dir == 2){
 return false;
 }
 
+// if wall exists or not
 void SquareMaze::setWall(int x, int y, int dir, bool exists) {
   // 0 = no walls
   // 1 = right wall
@@ -77,7 +80,9 @@ void SquareMaze::setWall(int x, int y, int dir, bool exists) {
     else Down[x+y*width_] = 0;
   }
 }
-vector<int> SquareMaze::solveMaze() { //BFS approach
+
+// solves da maze !! (BFS)
+vector<int> SquareMaze::solveMaze() {
     vector<int> vect;
     vector<bool> yesno;
     map<int, int>mom;
@@ -86,9 +91,9 @@ vector<int> SquareMaze::solveMaze() { //BFS approach
 
 
     for(int i = 0; i< size_; i++)
-    yesno.push_back(false); //everywhere false
+    yesno.push_back(false);
 
-    yesno[0] = true; //first step true
+    yesno[0] = true;
 
     while(!q.empty()){
       int temp = q.front();
@@ -140,8 +145,8 @@ vector<int> SquareMaze::solveMaze() { //BFS approach
       return vect2;
     }
 
-
-PNG* SquareMaze::drawMaze() const{ //draws maze without solution
+// draws da maze !! (no solution)
+PNG* SquareMaze::drawMaze() const{
     PNG* maize = new PNG(width_*10+1, height_*10+1);
 
     for (int i = 0; i < height_*10+1; i++){
@@ -177,6 +182,8 @@ PNG* SquareMaze::drawMaze() const{ //draws maze without solution
               }}
           return maize;
     }
+
+// draws da maze with solution !! (modifies PNG)    
 PNG * SquareMaze::drawMazeWithSolution() {
   PNG * maize = drawMaze();
   vector<int> solved = solveMaze();
