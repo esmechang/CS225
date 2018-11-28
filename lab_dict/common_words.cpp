@@ -49,7 +49,7 @@ void CommonWords::init_file_word_maps(const vector<string>& filenames)
         vector<string> words = file_to_vector(filenames[i]);
         /* Your code goes here! */
         for (auto &vecIter : words) {
-          file_to_vector[i][vecIter]++;
+          file_word_maps[i][vecIter]++;
         }
     }
 }

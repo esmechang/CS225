@@ -81,7 +81,7 @@ bool PronounceDict::homophones(const string& word1, const string& word2) const
     std::transform(upperLetter2.begin(), upperLetter2.end(), upperLetter2.begin(), toupper);
     auto pronounce1 = dict.find(upperLetter1);
     auto pronounce2 = dict.find(upperLetter2);
-    if (pronounce1 == dict.end() || pronounce2 == dict.end() ||||||||| pronounce1->second != pronounce2->second) {
+    if (pronounce1 == dict.end() || pronounce2 == dict.end() || pronounce1->second != pronounce2->second) {
       return false;
     } else {
       return true;

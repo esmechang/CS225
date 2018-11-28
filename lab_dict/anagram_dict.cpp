@@ -23,23 +23,32 @@ using std::ifstream;
 AnagramDict::AnagramDict(const string& filename)
 {
     /* Your code goes here! */
-    vector<string> vecWords;
-    ifstream wordList(filename);
-    string word;
-    if (wordList.is_open()) {
-      while (getline(wordList, word)) {
-        vecWords.push_back(word);
-      }
-    }
-    for (auto &vecIter : vecWords) {
-      auto finder = dict.find(vecIter);
-      if (finder == dict.end()) {
-        std::vector<char> vectChar;
-        for (size_t i = 0; i < vecIter.length(); i++) {
-          vectChar.push_back(vecIter.at(i));
-          std::sort(vectChar.begin(), vectChar.end());
-          dict.insert(std::pair<string, std::vector<char>>(vecIter, vectChar));
-        }
+    // vector<string> vecWords;
+    // ifstream wordList(filename);
+    // string word;
+    // if (wordList.is_open()) {
+    //   while (getline(wordList, word)) {
+    //     vecWords.push_back(word);
+    //   }
+    // }
+    // for (auto &vecIter : vecWords) {
+    //   auto finder = dict.find(vecIter);
+    //   if (finder == dict.end()) {
+    //     std::vector<char> vectChar;
+    //     for (size_t i = 0; i < vecIter.length(); i++) {
+    //       vectChar.push_back(vecIter.at(i));
+    //       std::sort(vectChar.begin(), vectChar.end());
+    //       dict.insert(std::pair<string, std::vector<char>>(vecIter, vectChar));
+    //     }
+    //   }
+    // }
+    ifstream words(filename);
+    string w;
+    if (words.is_open()) {
+      while(getline(words, w)) {
+        string temp;
+        sort(temp.begin(), temp.end());
+        dict[temp].push_back(w);
       }
     }
 }
@@ -51,16 +60,10 @@ AnagramDict::AnagramDict(const string& filename)
 AnagramDict::AnagramDict(const vector<string>& words)
 {
     /* Your code goes here! */
-    for (auto &vecIter : words) {
-      auto finder = dict.find(vecIter);
-      if (finder == dict.end()) {
-        std::vector<char> vectChar;
-        for (size_t i = 0; i < vecIter.length(); ++i) {
-          vectChar.push_back(vecIter.at(i));
-          std::sort(vectChar.begin(), vectChar.end());
-          dict.insert(std::pair<string, std::vector<char>>(vecIter, vectChar));
-        }
-      }
+    for (auto vecIter = words.begin(); vecIter != words.end(); vecIter++) {
+      string temp = *vecIter;
+      sort(temp.begin(), temp.end());
+      dict[temp].push_back(*vecIter);
     }
 }
 
@@ -73,28 +76,27 @@ AnagramDict::AnagramDict(const vector<string>& words)
 vector<string> AnagramDict::get_anagrams(const string& word) const
 {
     /* Your code goes here! */
-    vector<string> output;
-    output = get_anagrams_helper(word);
-    if (output.size() > 1) {
-      return output;
-    } else {
-      return vector<string>();
+    string w = word;
+    sort(w.begin(), w.end());
+    if (dict.find(w) != dict.end()) {
+      return dict.find(w)->second;
     }
+    return vector<string>();
 }
 
-vector<string> AnagramDict::get_anagrams_helper(const string &word) const {
-  vector<string> output;
-  auto finder = dict.find(word);
-  if (finder != dict.end()) {
-    vector<char> vectChar = finder->second;
-    for (auto &dictIter : dict) {
-      if (dictIter.second == vectChar) {
-        output.push_back(dictIter.first);
-      }
-    }
-  }
-  return output;
-}
+// vector<string> AnagramDict::get_anagrams_helper(const string &word) const {
+//   vector<string> output;
+//   auto finder = dict.find(word);
+//   if (finder != dict.end()) {
+//     vector<char> vectChar = finder->second;
+//     for (auto &dictIter : dict) {
+//       if (dictIter.second == vectChar) {
+//         output.push_back(dictIter.first);
+//       }
+//     }
+//   }
+//   return output;
+// }
 
 /**
  * @return A vector of vectors of strings. Each inner vector contains
@@ -107,9 +109,8 @@ vector<vector<string>> AnagramDict::get_all_anagrams() const
     /* Your code goes here! */
     vector<vector<string>> allAnagrams;
     for (auto &dictIter : dict) {
-      string temp = dictIter.first;
-      vector<string> smolVect = get_anagrams_helper(temp);
-      if (smolVect.size() > 1) {
+      vector<string> smolVect = get_anagrams(dictIter.first);
+      if (smolVect.size() >= 2) {
         allAnagrams.push_back(smolVect);
       }
     }
